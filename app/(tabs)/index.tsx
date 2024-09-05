@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, ListRenderItemInfo, Keyboard } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, ListRenderItemInfo, Keyboard, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { MaterialIcons } from '@expo/vector-icons'; // Importing MaterialIcons for the icons
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface Task {
   text: string;
@@ -13,8 +13,11 @@ export default function App() {
   const [taskItems, setTaskItems] = useState<Task[]>([]);
 
   const handleAddTask = () => {
-    if (task.length > 0) {
-      setTaskItems([...taskItems, { text: task, completed: false }]);
+    const trimmedTask = task.trim(); // Trim leading and trailing spaces
+    if (trimmedTask.length === 0) {
+      Alert.alert("Thông báo", "Hãy nhập nội dung công việc!"); // Show alert if the trimmed input is empty
+    } else {
+      setTaskItems([...taskItems, { text: trimmedTask, completed: false }]);
       setTask(''); // Clear the input after adding a task
       Keyboard.dismiss(); // Dismiss the keyboard after adding the task
     }
@@ -34,7 +37,7 @@ export default function App() {
 
   const renderTask = ({ item, index }: ListRenderItemInfo<Task>) => (
     <View style={[styles.taskItem, item.completed && styles.completedTask]}>
-      <Text style={item.completed ? styles.completedTaskText : styles.taskText}>
+      <Text style={[styles.taskText, item.completed && styles.completedTaskText]}>
         {item.text}
       </Text>
       <View style={styles.taskActions}>
@@ -51,7 +54,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <Text style={styles.title}>Albert TO DO LIST</Text>
+      <Text style={styles.title}>TO DO LIST</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -59,7 +62,7 @@ export default function App() {
           placeholderTextColor="#EEEEEE"
           value={task}
           onChangeText={text => setTask(text)}
-          onSubmitEditing={handleAddTask} // Automatically add task when "Enter" is pressed
+          onSubmitEditing={handleAddTask}
         />
         <TouchableOpacity onPress={handleAddTask} style={styles.addButton}>
           <Text style={styles.addButtonText}>+</Text>
@@ -70,7 +73,7 @@ export default function App() {
         renderItem={renderTask}
         keyExtractor={(item, index) => index.toString()}
         style={styles.taskList}
-        contentContainerStyle={{ paddingBottom: 100 }} // Space at the bottom for better scrolling
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
     </View>
   );
@@ -79,14 +82,14 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#222831', // Main background color
+    backgroundColor: '#222831',
     paddingHorizontal: 20,
     paddingVertical: 40,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#EEEEEE', // Light font color for the title
+    color: '#EEEEEE',
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -94,7 +97,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
-    backgroundColor: '#393E46', // Darker background for the input section
+    backgroundColor: '#393E46',
     borderRadius: 10,
     padding: 10,
     alignItems: 'center',
@@ -103,15 +106,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 15,
-    color: '#EEEEEE', // Light text color for input
-    backgroundColor: '#393E46', // Match input background to container
+    color: '#EEEEEE',
+    backgroundColor: '#393E46',
     borderRadius: 10,
     borderColor: '#00ADB5',
     borderWidth: 1,
     marginRight: 10,
   },
   addButton: {
-    backgroundColor: '#00ADB5', // Accent color for the add button
+    backgroundColor: '#00ADB5',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -119,7 +122,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButtonText: {
-    color: '#222831', // Darker text color for contrast on the button
+    color: '#222831',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -127,7 +130,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   taskItem: {
-    backgroundColor: '#393E46', // Background color for each task item
+    backgroundColor: '#393E46',
     padding: 15,
     borderRadius: 10,
     flexDirection: 'row',
@@ -139,16 +142,19 @@ const styles = StyleSheet.create({
   },
   taskText: {
     fontSize: 16,
-    color: '#EEEEEE', // Light text color for tasks
+    color: '#EEEEEE',
     flex: 1,
+    flexShrink: 1, // Allow text to shrink if needed
+    overflow: 'hidden', // Hide overflow text
+    //textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   completedTaskText: {
     fontSize: 16,
     textDecorationLine: 'line-through',
-    color: '#EEEEEE', // Accent color for completed tasks
+    color: '#EEEEEE',
   },
   completedTask: {
-    backgroundColor: '#222831', // Darker background for completed tasks
+    backgroundColor: '#222831',
   },
   taskActions: {
     flexDirection: 'row',
@@ -156,7 +162,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     marginRight: 10,
-    backgroundColor: '#00ADB5', // Matching accent color for the buttons
+    backgroundColor: '#00ADB5',
     padding: 10,
     borderRadius: 10,
     justifyContent: 'center',
